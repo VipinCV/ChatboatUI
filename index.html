@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Neon RAG Chatbot · Groq</title>
+    <!-- Font & minimal icons (Font Awesome) for a polished feel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f6f9fc 0%, #e9f0f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .chat-container {
+            max-width: 880px;
+            width: 100%;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.6) inset;
+            padding: 1.8rem 2rem 2rem;
+            transition: all 0.2s ease;
+        }
+        /* header */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .chat-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0b2a4a, #1b4a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chat-header h1 i {
+            background: #1b4a7a;
+            color: white;
+            font-size: 1.2rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 40px;
+            -webkit-text-fill-color: white;
+        }
+        .status-badge {
+            margin-left: auto;
+            background: #d1e7dd;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #0b3b2c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #b6d7c8;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .status-badge i {
+            font-size: 0.6rem;
+            color: #1d8b5e;
+        }
+        /* message area */
+        .message-area {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-radius: 1.8rem;
+            padding: 1.5rem 1.2rem;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            scroll-behavior: smooth;
+        }
+        .message-area::-webkit-scrollbar {
+            width: 5px;
+        }
+        .message-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .message-area::-webkit-scrollbar-thumb {
+            background: #b3c9db;
+            border-radius: 20px;
+        }
+        /* bubbles */
+        .message {
+            max-width: 85%;
+            padding: 0.85rem 1.2rem;
+            border-radius: 1.8rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeSlide 0.25s ease;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: #1b4a7a;
+            color: white;
+            border-bottom-right-radius: 0.4rem;
+            background: linear-gradient(145deg, #1f4f80, #153a60);
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: white;
+            color: #1f2a3f;
+            border-bottom-left-radius: 0.4rem;
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 4px 8px -4px rgba(0,0,0,0.05);
+        }
+        .message.bot .bot-icon {
+            margin-right: 0.4rem;
+            color: #1b4a7a;
+        }
+        .message .timestamp {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-top: 6px;
+            display: block;
+            text-align: right;
+        }
+        .message.user .timestamp {
+            color: rgba(255,255,255,0.7);
+        }
+        /* typing indicator */
+        .typing-indicator {
+            align-self: flex-start;
+            background: white;
+            padding: 0.6rem 1.4rem;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            border: 1px solid #e2eaf1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            font-size: 0.9rem;
+            color: #2f4057;
+        }
+        .typing-indicator i {
+            font-size: 0.4rem;
+            color: #1b4a7a;
+        }
+        .typing-indicator .dot {
+            animation: pulse 1.4s infinite;
+        }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 60%, 100% { opacity: 0.2; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* input row */
+        .input-row {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            background: white;
+            padding: 0.3rem 0.3rem 0.3rem 1.5rem;
+            border-radius: 60px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 0 0 1px #e3eaf0;
+            transition: box-shadow 0.2s;
+        }
+        .input-row:focus-within {
+            box-shadow: 0 4px 16px rgba(23, 78, 128, 0.12), 0 0 0 2px #1b4a7a40;
+        }
+        .input-row input {
+            flex: 1;
+            border: none;
+            padding: 0.9rem 0.2rem;
+            font-size: 1rem;
+            background: transparent;
+            outline: none;
+            color: #1a2b3c;
+        }
+        .input-row input::placeholder {
+            color: #8a9bb0;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+        .input-row button {
+            background: #1b4a7a;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.7rem 1.8rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.15s;
+            box-shadow: 0 4px 10px -2px #1b4a7a60;
+            border: 1px solid #2a5f8f;
+        }
+        .input-row button:hover {
+            background: #143a5e;
+            transform: scale(0.97);
+            box-shadow: 0 4px 8px -2px #0d2e4b;
+        }
+        .input-row button:active {
+            transform: scale(0.94);
+        }
+        .input-row button i {
+            font-size: 0.9rem;
+        }
+        .input-row button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+        /* small hint */
+        .footer-hint {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6a7d94;
+            letter-spacing: 0.3px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .footer-hint span i {
+            margin-right: 4px;
+            color: #3f6b92;
+        }
+        .error-message {
+            background: #fee9e7;
+            border-left: 4px solid #c73b2b;
+            color: #822b1f;
+        }
+        /* responsive */
+        @media (max-width: 550px) {
+            .chat-container { padding: 1.2rem; }
+            .message-area { height: 300px; padding: 1rem; }
+            .input-row { padding-left: 1rem; }
+            .input-row button { padding: 0.6rem 1.2rem; }
+            .chat-header h1 { font-size: 1.4rem; }
+            .status-badge { font-size: 0.7rem; padding: 0.2rem 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+        <h1><i class="fas fa-robot"></i> RAG · Neon</h1>
+        <div class="status-badge">
+            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> live · Groq
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="messageArea" class="message-area">
+        <!-- Welcome message (bot) -->
+        <div class="message bot">
+            <i class="fas fa-robot bot-icon"></i> 
+            👋 Hello! I'm your support assistant. Ask me anything about the knowledge base.
+            <span class="timestamp"><i class="far fa-clock"></i> just now</span>
+        </div>
+    </div>
+
+    <!-- Typing indicator (hidden by default) -->
+    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+        <span>Bot is thinking</span>
+        <span class="dot">·</span><span class="dot">·</span><span class="dot">·</span>
+        <i class="fas fa-ellipsis-h"></i>
+    </div>
+
+    <!-- Input row -->
+    <div class="input-row">
+        <input type="text" id="userInput" placeholder="Ask about knowledge base…" autofocus>
+        <button id="sendButton"><i class="fas fa-paper-plane"></i> Send</button>
+    </div>
+    <div class="footer-hint">
+        <span><i class="fas fa-database"></i> Live Neon DB context</span>
+        <span><i class="fas fa-shield-alt"></i> RAG · system rules</span>
+        <span><i class="fas fa-code"></i> /api/chat</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // --- DOM refs ---
+        const messageArea = document.getElementById('messageArea');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // --- API base (we assume the backend is served from same origin, 
+        // but you can change this if needed. Render/neon backend URL)
+        // For local dev, keep '/api/chat'; for production set full URL if needed.
+        const API_CHAT_ENDPOINT = 'https://chatboat-t3l9.onrender.com/api/chat';   // relative to current origin
+
+        // --- helper: scroll to bottom
+        function scrollToBottom() {
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        // --- helper: add message to UI
+        function addMessage(text, sender = 'bot', isError = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            if (isError) msgDiv.classList.add('error-message');
+
+            if (sender === 'bot') {
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-robot bot-icon';
+                msgDiv.appendChild(icon);
+                // add space after icon
+                msgDiv.appendChild(document.createTextNode(' '));
+            }
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = text;
+            msgDiv.appendChild(textSpan);
+
+            // timestamp
+            const time = document.createElement('span');
+            time.className = 'timestamp';
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            time.innerHTML = `<i class="far fa-clock"></i> ${timeStr}`;
+            msgDiv.appendChild(time);
+
+            messageArea.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        // --- show / hide typing
+        function setTyping(visible) {
+            typingIndicator.style.display = visible ? 'flex' : 'none';
+            scrollToBottom();
+        }
+
+        // --- core send message
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query) {
+                userInput.focus();
+                return;
+            }
+
+            // 1. Add user message
+            addMessage(query, 'user');
+            userInput.value = '';
+            userInput.disabled = true;
+            sendButton.disabled = true;
+
+            // 2. Show typing indicator
+            setTyping(true);
+
+            try {
+                // 3. POST to /api/chat
+                const response = await fetch(API_CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ UserQuery: query }),
+                });
+
+                // 4. Parse response (we expect JSON with botResponse field)
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseErr) {
+                    // if response not json
+                    throw new Error(`Invalid server response (${response.status})`);
+                }
+
+                // 5. extract bot message
+                let botReply = data?.botResponse || data?.message || '⚠️ No response field from server.';
+                // if status not ok, treat as error but still display
+                if (!response.ok) {
+                    // prepend error indicator
+                    botReply = `⚠️ Server error (${response.status}): ${botReply}`;
+                }
+
+                // 6. hide typing, show bot message
+                setTyping(false);
+                addMessage(botReply, 'bot', !response.ok);
+
+            } catch (error) {
+                console.error('[Chat UI] Error:', error);
+                setTyping(false);
+                const errorMsg = error.message || 'Network or server error. Please check console.';
+                addMessage(`❌ ${errorMsg}`, 'bot', true);
+            } finally {
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // --- event listeners ---
+        sendButton.addEventListener('click', sendMessage);
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // small additional: if user clicks on status, noop but nice
+        // prefill for demo with a sample query (optional)
+        window.addEventListener('load', () => {
+            userInput.focus();
+            // optional: add a small example message after 500ms
+            setTimeout(() => {
+                // if no messages yet, keep welcome. 
+                // we already have welcome, but we can show hint
+                // but we don't want to spam. 
+            }, 200);
+        });
+
+        // expose for debugging (optional)
+        window.__chatDebug = { sendMessage, addMessage, setTyping };
+    })();
+</script>
+<!-- additional note: the backend uses /api/chat, /api/knowledge/update is not used in UI but you can integrate later -->
+</body>
+</html>
