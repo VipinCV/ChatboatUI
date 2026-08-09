@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📚 Knowledge Base · Admin Update</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Google Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f5fb 0%, #e3ecf5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 1.8rem;
+        }
+
+        .admin-container {
+            max-width: 780px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 2.8rem;
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+            padding: 2.2rem 2.4rem 2.4rem;
+            transition: all 0.2s;
+        }
+
+        /* header */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0a2647, #1b4f8b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            letter-spacing: -0.02em;
+        }
+
+        .admin-header h1 i {
+            background: #1b4f8b;
+            color: white;
+            font-size: 1.2rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 40px;
+            -webkit-text-fill-color: white;
+        }
+
+        .status-badge {
+            margin-left: auto;
+            background: #d2e8dd;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0b3d2a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #b7d9c6;
+        }
+
+        .status-badge i {
+            font-size: 0.5rem;
+            color: #1a8a5a;
+        }
+
+        /* form */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1a334d;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.01em;
+        }
+
+        .form-group label i {
+            margin-right: 6px;
+            color: #1b4f8b;
+            width: 18px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1.4rem;
+            border: 1.5px solid #dce5ef;
+            background: white;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: 0.15s;
+            color: #142b40;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1b4f8b;
+            box-shadow: 0 0 0 3px rgba(27, 79, 139, 0.12);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        @media (max-width: 580px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+        }
+
+        /* button */
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #1b4f8b;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.8rem 2.2rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.12s;
+            box-shadow: 0 4px 14px -2px #1b4f8b70;
+            border: 1px solid #2e66a0;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #123f6b;
+            transform: scale(0.97);
+            box-shadow: 0 4px 10px -2px #0f3457;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid #b6ccdf;
+            color: #2f4d6e;
+            font-weight: 500;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0.5;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: #eaf1f8;
+            border-color: #1b4f8b;
+        }
+
+        /* response message */
+        .response-box {
+            margin-top: 1.5rem;
+            padding: 0.9rem 1.4rem;
+            border-radius: 1.6rem;
+            background: #f1f7fd;
+            border-left: 4px solid #1b4f8b;
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+            color: #0a2647;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        .response-box.success {
+            border-left-color: #1d8b5e;
+            background: #e6f4ed;
+            color: #0a3d2a;
+        }
+
+        .response-box.error {
+            border-left-color: #bc3f2f;
+            background: #feeae7;
+            color: #832f21;
+        }
+
+        .response-box i {
+            font-size: 1.2rem;
+        }
+
+        .response-box.show {
+            display: flex;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer-hint {
+            margin-top: 1.6rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6a7f99;
+            opacity: 0.7;
+            display: flex;
+            justify-content: center;
+            gap: 1.6rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-hint span i {
+            margin-right: 4px;
+            color: #3f6b92;
+        }
+
+        /* helper */
+        .field-hint {
+            font-size: 0.7rem;
+            color: #6a7f99;
+            margin-top: 0.25rem;
+            padding-left: 0.3rem;
+            opacity: 0.7;
+        }
+
+        .inline-icon {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+        <h1><i class="fas fa-database"></i> Knowledge Admin</h1>
+        <div class="status-badge">
+            <i class="fas fa-circle"></i> Neon · /update
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form id="knowledgeForm" autocomplete="off">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="categoryInput"><i class="fas fa-tag"></i> Category</label>
+                <input type="text" id="categoryInput" placeholder="e.g. Courses, Support, Policies" required />
+                <div class="field-hint"><i class="far fa-circle"></i> Group / topic area</div>
+            </div>
+            <div class="form-group">
+                <label for="topicInput"><i class="fas fa-heading"></i> Topic Name</label>
+                <input type="text" id="topicInput" placeholder="e.g. Web Development Course" required />
+                <div class="field-hint"><i class="far fa-circle"></i> Unique identifier per category</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="contentInput"><i class="fas fa-align-left"></i> Content Details</label>
+            <textarea id="contentInput" placeholder="Full description, details, facts, answers …" required></textarea>
+            <div class="field-hint"><i class="fas fa-info-circle"></i> This will be stored in Neon DB and used by the RAG bot.</div>
+        </div>
+
+        <div class="action-row">
+            <button type="submit" class="btn-primary" id="submitBtn">
+                <i class="fas fa-upload"></i> Update Knowledge Base
+            </button>
+            <button type="reset" class="btn-secondary" id="resetBtn">
+                <i class="fas fa-undo-alt"></i> Clear
+            </button>
+        </div>
+    </form>
+
+    <!-- Response message -->
+    <div id="responseBox" class="response-box">
+        <i class="fas fa-check-circle"></i>
+        <span id="responseText">Knowledge base updated successfully!</span>
+    </div>
+
+    <div class="footer-hint">
+        <span><i class="fas fa-cloud-upload-alt"></i> POST /api/knowledge/update</span>
+        <span><i class="fas fa-sync-alt"></i> Upsert by Category + Topic</span>
+        <span><i class="fas fa-clock"></i> LastUpdated auto‑set</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- DOM refs -----
+        const form = document.getElementById('knowledgeForm');
+        const categoryInput = document.getElementById('categoryInput');
+        const topicInput = document.getElementById('topicInput');
+        const contentInput = document.getElementById('contentInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const responseBox = document.getElementById('responseBox');
+        const responseText = document.getElementById('responseText');
+
+        const API_UPDATE_ENDPOINT = 'https://chatboat-t3l9.onrender.com/api/knowledge/update';   // relative
+
+        // ----- helpers: show response -----
+        function showResponse(message, type = 'success') {
+            responseBox.className = 'response-box show ' + type;
+            responseText.textContent = message;
+            // auto hide after 6 seconds, but keep if error
+            if (type === 'success') {
+                setTimeout(() => {
+                    responseBox.classList.remove('show');
+                }, 5500);
+            }
+        }
+
+        function hideResponse() {
+            responseBox.classList.remove('show');
+        }
+
+        // ----- submit handler -----
+        async function handleSubmit(e) {
+            e.preventDefault();
+            hideResponse();
+
+            // gather data
+            const category = categoryInput.value.trim();
+            const topicName = topicInput.value.trim();
+            const contentDetails = contentInput.value.trim();
+
+            if (!category || !topicName || !contentDetails) {
+                showResponse('❌ All fields (Category, Topic, Content) are required.', 'error');
+                return;
+            }
+
+            // build payload exactly as backend expects: 
+            // { Category, TopicName, ContentDetails }
+            const payload = {
+                Category: category,
+                TopicName: topicName,
+                ContentDetails: contentDetails
+            };
+
+            // disable button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Updating…';
+
+            try {
+                const response = await fetch(API_UPDATE_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    throw new Error(`Invalid server response (${response.status})`);
+                }
+
+                if (response.ok) {
+                    const msg = data?.message || '✅ Knowledge base updated successfully!';
+                    showResponse(msg, 'success');
+                    // optional: clear form after success? we keep it for review.
+                    // but we can reset fields if user wants – we'll leave as is.
+                    // but we set a small flag: we don't clear automatically to allow quick edits.
+                } else {
+                    const errorMsg = data?.message || data?.title || `Server error (${response.status})`;
+                    showResponse(`❌ ${errorMsg}`, 'error');
+                }
+            } catch (error) {
+                console.error('[Knowledge Update]', error);
+                showResponse(`⚠️ Network or server error: ${error.message || 'unknown'}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload"></i> Update Knowledge Base';
+            }
+        }
+
+        // ----- reset / clear form (with optional hide response) -----
+        function handleReset(e) {
+            // native reset will clear fields, but we also want to clear response
+            // we let default reset happen, then we hide response
+            // but we need to prevent default to avoid weirdness? we can call reset() manually.
+            e.preventDefault();
+            form.reset();
+            hideResponse();
+            // also clear any validation states
+            categoryInput.focus();
+        }
+
+        // ----- attach events -----
+        form.addEventListener('submit', handleSubmit);
+        resetBtn.addEventListener('click', handleReset);
+
+        // if user clicks on response box, hide it (optional)
+        responseBox.addEventListener('click', () => {
+            responseBox.classList.remove('show');
+        });
+
+        // prefill example for demo (optional) – but we don't want to override user experience.
+        // we can leave it empty, but for quick test you can uncomment:
+        /*
+        window.addEventListener('load', () => {
+            categoryInput.value = 'Courses';
+            topicInput.value = 'Full‑Stack Web Development';
+            contentInput.value = 'Duration: 12 weeks\nSchedule: Tuesdays & Thursdays, 7:00 PM – 9:00 PM EST\nFee: $1,500 (comprehensive fee)\nPrerequisites: Basic HTML & CSS';
+        });
+        */
+
+        // small UX: if any field is empty, we show subtle hint on submit attempt handled above.
+        // also focus first field
+        window.addEventListener('load', () => {
+            categoryInput.focus();
+        });
+
+        // expose for debugging
+        window.__knowledgeAdmin = { form, categoryInput, topicInput, contentInput, submitBtn, resetBtn };
+    })();
+</script>
+
+</body>
+</html>
